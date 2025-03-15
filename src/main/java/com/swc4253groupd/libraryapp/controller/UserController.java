@@ -86,32 +86,47 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<?> registerUser(@RequestBody UserRequestDTO userRequest) {
-        if (userRepository.findByUsername(userRequest.getUsername()).isPresent()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", "Username already exists"));
+    public ResponseEntity<?> registerUser(@RequestBody UserRequestDTO userRequest,
+            @RequestHeader("Authorization") String token) {
+
+        try {
+            String role = jwtUtil.extractRole(token.replace("Bearer ", ""));
+
+            // Only allow admins to fetch user list
+            if (!"ADMIN".equals(role)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("error", "Access denied"));
+            }
+
+            if (userRepository.findByUsername(userRequest.getUsername()).isPresent()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("error", "Username already exists"));
+            }
+
+            User user = new User();
+            user.setUsername(userRequest.getUsername());
+            user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+            user.setRole(userRequest.getRole());
+            user.setPhoneno(userRequest.getPhoneno());
+            user.setAddress(userRequest.getAddress());
+            user.setName(userRequest.getName());
+            user.setEmail(userRequest.getEmail());
+
+            User savedUser = userRepository.save(user);
+
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(Map.of(
+                            "id", savedUser.getUserid(),
+                            "username", savedUser.getUsername(),
+                            "name", savedUser.getName(),
+                            "role", savedUser.getRole(),
+                            "email", savedUser.getEmail(),
+                            "address", savedUser.getAddress(),
+                            "phoneno", savedUser.getPhoneno()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Invalid or expired token"));
         }
-
-        User user = new User();
-        user.setUsername(userRequest.getUsername());
-        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
-        user.setRole(userRequest.getRole());
-        user.setPhoneno(userRequest.getPhoneno());
-        user.setAddress(userRequest.getAddress());
-        user.setName(userRequest.getName());
-        user.setEmail(userRequest.getEmail());
-
-        User savedUser = userRepository.save(user);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Map.of(
-                        "id", savedUser.getUserid(),
-                        "username", savedUser.getUsername(),
-                        "name", savedUser.getName(),
-                        "role", savedUser.getRole(),
-                        "email", savedUser.getEmail(),
-                        "address", savedUser.getAddress(),
-                        "phoneno", savedUser.getPhoneno()));
     }
 
     @PutMapping("/{id}")
