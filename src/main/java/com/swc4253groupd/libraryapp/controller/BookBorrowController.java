@@ -21,6 +21,7 @@ import com.swc4253groupd.libraryapp.dto.BookBorrowRequestDTO;
 import com.swc4253groupd.libraryapp.model.Book;
 import com.swc4253groupd.libraryapp.model.BookBorrow;
 import com.swc4253groupd.libraryapp.model.User;
+import com.swc4253groupd.libraryapp.notification.EmailService;
 import com.swc4253groupd.libraryapp.repository.BookBorrowRepository;
 import com.swc4253groupd.libraryapp.repository.BookRepository;
 import com.swc4253groupd.libraryapp.repository.UserRepository;
@@ -40,6 +41,9 @@ public class BookBorrowController {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private EmailService emailService;
 
     @GetMapping
     public ResponseEntity<?> getBookBorrows(@RequestHeader("Authorization") String token) {
@@ -105,6 +109,8 @@ public class BookBorrowController {
             bookBorrow.setUser(userOpt.get());
 
             BookBorrow savedBookBorrow = bookBorrowRepository.save(bookBorrow);
+            emailService.sendEmail(userOpt.get().getEmail(), "Book borrow confirmation", bookOpt.get().getTitle(), bookOpt.get().getAuthor(), savedBookBorrow.getDateborrowed().toString(), savedBookBorrow.getDatereturn().toString());
+            
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(Map.of(
                             "id", savedBookBorrow.getBookborrowid(),
@@ -114,6 +120,7 @@ public class BookBorrowController {
                             "user", savedBookBorrow.getUser()));
 
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Invalid or expired token"));
         }

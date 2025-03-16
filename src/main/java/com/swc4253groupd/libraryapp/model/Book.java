@@ -21,5 +21,7 @@ public class Book {
 
     private String author;
 
+    private String category;
+
     private Year yearpublished;
 }

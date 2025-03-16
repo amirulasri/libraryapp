@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.swc4253groupd.libraryapp.dto.BookRequestDTO;
@@ -32,18 +33,32 @@ public class BookController {
     private JwtUtil jwtUtil;
 
     @GetMapping
-    public ResponseEntity<?> getBooks(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> getBooks(
+            @RequestHeader("Authorization") String token,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String author,
+            @RequestParam(required = false) String category) {
         try {
             String role = jwtUtil.extractRole(token.replace("Bearer ", ""));
-
-            if ((!"ADMIN".equals(role)) && (!"LIBRARIAN".equals(role))) {
+            if (!"ADMIN".equals(role) && !"LIBRARIAN".equals(role)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(Map.of("error", "Access denied"));
             }
 
-            List<Book> books = (List<Book>) bookRepository.findAll();
+            List<Book> books;
+            if (title != null || author != null || category != null) {
+                books = bookRepository
+                        .findByTitleContainingIgnoreCaseOrAuthorContainingIgnoreCaseOrCategoryContainingIgnoreCase(
+                                title != null ? title : "",
+                                author != null ? author : "",
+                                category != null ? category : "");
+            } else {
+                books = (List<Book>) bookRepository.findAll();
+            }
+
             return ResponseEntity.ok(books);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Invalid or expired token"));
         }
@@ -87,16 +102,12 @@ public class BookController {
             Book book = new Book();
             book.setTitle(bookRequest.getTitle());
             book.setAuthor(bookRequest.getAuthor());
+            book.setCategory(bookRequest.getCategory());
             book.setYearpublished(bookRequest.getYearpublished());
 
             Book savedBook = bookRepository.save(book);
 
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(Map.of(
-                            "id", savedBook.getBookid(),
-                            "title", savedBook.getTitle(),
-                            "author", savedBook.getAuthor(),
-                            "yearpublished", savedBook.getYearpublished()));
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedBook);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Invalid or expired token"));
@@ -119,6 +130,7 @@ public class BookController {
                 Book book = existingbook.get();
                 book.setTitle(bookRequest.getTitle());
                 book.setAuthor(bookRequest.getAuthor());
+                book.setCategory(bookRequest.getCategory());
                 book.setYearpublished(bookRequest.getYearpublished());
 
                 bookRepository.save(book);

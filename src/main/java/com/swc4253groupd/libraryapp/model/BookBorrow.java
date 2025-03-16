@@ -2,6 +2,7 @@ package com.swc4253groupd.libraryapp.model;
 
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,6 +23,9 @@ public class BookBorrow {
     private LocalDateTime dateborrowed;
 
     private LocalDateTime datereturn;
+
+    @Column(name = "isreturn", columnDefinition = "BIT")
+    private Boolean isreturn;
 
     @ManyToOne
     @JoinColumn(name = "bookid", nullable = false)

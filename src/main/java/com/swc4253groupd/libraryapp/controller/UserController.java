@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.swc4253groupd.libraryapp.dto.UserRequestDTO;
 import com.swc4253groupd.libraryapp.model.User;
@@ -37,24 +39,29 @@ public class UserController {
     private PasswordEncoder passwordEncoder;
 
     @GetMapping
-    public ResponseEntity<?> getUsers(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> getUsers(
+            @RequestHeader("Authorization") String token,
+            @RequestParam(required = false) String query) {
         try {
-            // Extract username and role from token
-            // String username = jwtUtil.extractUsername(token.replace("Bearer ", ""));
             String role = jwtUtil.extractRole(token.replace("Bearer ", ""));
 
-            // Only allow admins to fetch user list
+            // Only ADMIN can access
             if (!"ADMIN".equals(role)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(Map.of("error", "Access denied"));
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Access denied"));
             }
 
-            // Retrieve all users
-            List<User> users = (List<User>) userRepository.findAll();
+            List<User> users;
+            if (query != null && !query.isBlank()) {
+                users = userRepository
+                        .findByUsernameContainingIgnoreCaseOrNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhonenoContainingIgnoreCase(
+                                query, query, query, query);
+            } else {
+                users = (List<User>) userRepository.findAll();
+            }
+
             return ResponseEntity.ok(users);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Invalid or expired token"));
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid or expired token");
         }
     }
 
@@ -115,14 +122,7 @@ public class UserController {
             User savedUser = userRepository.save(user);
 
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(Map.of(
-                            "id", savedUser.getUserid(),
-                            "username", savedUser.getUsername(),
-                            "name", savedUser.getName(),
-                            "role", savedUser.getRole(),
-                            "email", savedUser.getEmail(),
-                            "address", savedUser.getAddress(),
-                            "phoneno", savedUser.getPhoneno()));
+                    .body(savedUser);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Invalid or expired token"));
