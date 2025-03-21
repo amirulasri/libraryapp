@@ -33,7 +33,7 @@ public class BookController {
     private JwtUtil jwtUtil;
 
     @GetMapping
-    public ResponseEntity<?> getBooks(
+    private ResponseEntity<?> getBooks(
             @RequestHeader("Authorization") String token,
             @RequestParam(required = false) String title,
             @RequestParam(required = false) String author,
@@ -65,7 +65,7 @@ public class BookController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getBookById(@PathVariable int id, @RequestHeader("Authorization") String token) {
+    private ResponseEntity<?> getBookById(@PathVariable int id, @RequestHeader("Authorization") String token) {
         try {
             String role = jwtUtil.extractRole(token.replace("Bearer ", ""));
 
@@ -88,7 +88,7 @@ public class BookController {
     }
 
     @PostMapping
-    public ResponseEntity<?> registerBook(@RequestBody BookRequestDTO bookRequest,
+    private ResponseEntity<?> registerBook(@RequestBody BookRequestDTO bookRequest,
             @RequestHeader("Authorization") String token) {
 
         try {
@@ -115,7 +115,7 @@ public class BookController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateBook(@PathVariable int id, @RequestBody BookRequestDTO bookRequest,
+    private ResponseEntity<?> updateBook(@PathVariable int id, @RequestBody BookRequestDTO bookRequest,
             @RequestHeader("Authorization") String token) {
         try {
             String role = jwtUtil.extractRole(token.replace("Bearer ", ""));
@@ -146,7 +146,7 @@ public class BookController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteBook(@PathVariable int id, @RequestHeader("Authorization") String token) {
+    private ResponseEntity<?> deleteBook(@PathVariable int id, @RequestHeader("Authorization") String token) {
         try {
             String role = jwtUtil.extractRole(token.replace("Bearer ", ""));
 

@@ -24,14 +24,16 @@ public class BookBorrow {
 
     private LocalDateTime datereturn;
 
-    @Column(name = "isreturn", columnDefinition = "BIT")
-    private Boolean isreturn;
+    @Column(name = "isreturn", columnDefinition = "BIT DEFAULT 0")
+    private Boolean isreturn = false;
 
     @ManyToOne
     @JoinColumn(name = "bookid", nullable = false)
     private Book book;
-    
+
     @ManyToOne
     @JoinColumn(name = "userid", nullable = false)
     private User user;
+
+    private int notificationCount = 0;
 }

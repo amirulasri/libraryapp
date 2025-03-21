@@ -39,7 +39,7 @@ public class UserController {
     private PasswordEncoder passwordEncoder;
 
     @GetMapping
-    public ResponseEntity<?> getUsers(
+    private ResponseEntity<?> getUsers(
             @RequestHeader("Authorization") String token,
             @RequestParam(required = false) String query) {
         try {
@@ -66,7 +66,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getUserById(@PathVariable int id, @RequestHeader("Authorization") String token) {
+    private ResponseEntity<?> getUserById(@PathVariable int id, @RequestHeader("Authorization") String token) {
         try {
             // Validate token (uncomment if needed)
             // jwtUtil.validateToken(token.replace("Bearer ", ""));
@@ -93,7 +93,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<?> registerUser(@RequestBody UserRequestDTO userRequest,
+    private ResponseEntity<?> registerUser(@RequestBody UserRequestDTO userRequest,
             @RequestHeader("Authorization") String token) {
 
         try {
@@ -130,7 +130,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable int id, @RequestBody UserRequestDTO userRequest,
+    private ResponseEntity<?> updateUser(@PathVariable int id, @RequestBody UserRequestDTO userRequest,
             @RequestHeader("Authorization") String token) {
         try {
             String role = jwtUtil.extractRole(token.replace("Bearer ", ""));
@@ -165,7 +165,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable int id, @RequestHeader("Authorization") String token) {
+    private ResponseEntity<?> deleteUser(@PathVariable int id, @RequestHeader("Authorization") String token) {
         try {
             String role = jwtUtil.extractRole(token.replace("Bearer ", ""));
 

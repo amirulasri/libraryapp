@@ -25,7 +25,7 @@ import com.swc4253groupd.libraryapp.notification.EmailService;
 import com.swc4253groupd.libraryapp.repository.BookBorrowRepository;
 import com.swc4253groupd.libraryapp.repository.BookRepository;
 import com.swc4253groupd.libraryapp.repository.UserRepository;
-import com.swc4253groupd.libraryapp.security.JwtUtil;
+import com.swc4253groupd.libraryapp.service.AuthService;
 
 @RestController
 @RequestMapping("/api/bookborrows")
@@ -40,17 +40,15 @@ public class BookBorrowController {
     private UserRepository userRepository;
 
     @Autowired
-    private JwtUtil jwtUtil;
-
-    @Autowired
     private EmailService emailService;
 
-    @GetMapping
-    public ResponseEntity<?> getBookBorrows(@RequestHeader("Authorization") String token) {
-        try {
-            String role = jwtUtil.extractRole(token.replace("Bearer ", ""));
+    @Autowired
+    private AuthService authService;
 
-            if ((!"ADMIN".equals(role)) && (!"LIBRARIAN".equals(role))) {
+    @GetMapping
+    private ResponseEntity<?> getBookBorrows(@RequestHeader("Authorization") String token) {
+        try {
+            if (!authService.roleAuthAdminLibrarian(token)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(Map.of("error", "Access denied"));
             }
@@ -64,11 +62,9 @@ public class BookBorrowController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getBookBorrowById(@PathVariable int id, @RequestHeader("Authorization") String token) {
+    private ResponseEntity<?> getBookBorrowById(@PathVariable int id, @RequestHeader("Authorization") String token) {
         try {
-            String role = jwtUtil.extractRole(token.replace("Bearer ", ""));
-
-            if ((!"ADMIN".equals(role)) && (!"LIBRARIAN".equals(role))) {
+            if (!authService.roleAuthAdminLibrarian(token)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(Map.of("error", "Access denied"));
             }
@@ -87,13 +83,11 @@ public class BookBorrowController {
     }
 
     @PostMapping
-    public ResponseEntity<?> registerBookBorrow(@RequestBody BookBorrowRequestDTO bookBorrowRequest,
+    private ResponseEntity<?> registerBookBorrow(@RequestBody BookBorrowRequestDTO bookBorrowRequest,
             @RequestHeader("Authorization") String token) {
 
         try {
-            String role = jwtUtil.extractRole(token.replace("Bearer ", ""));
-
-            if ((!"ADMIN".equals(role)) && (!"LIBRARIAN".equals(role))) {
+            if (!authService.roleAuthAdminLibrarian(token)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(Map.of("error", "Access denied"));
             }
@@ -109,7 +103,7 @@ public class BookBorrowController {
             bookBorrow.setUser(userOpt.get());
 
             BookBorrow savedBookBorrow = bookBorrowRepository.save(bookBorrow);
-            emailService.sendEmail(userOpt.get().getEmail(), "Book borrow confirmation", bookOpt.get().getTitle(), bookOpt.get().getAuthor(), savedBookBorrow.getDateborrowed().toString(), savedBookBorrow.getDatereturn().toString());
+            emailService.sendEmailAfterBook(userOpt.get().getEmail(), "Book borrow confirmation", bookOpt.get().getTitle(), bookOpt.get().getAuthor(), savedBookBorrow.getDateborrowed().toString(), savedBookBorrow.getDatereturn().toString());
             
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(Map.of(
@@ -128,12 +122,10 @@ public class BookBorrowController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateBookBorrow(@PathVariable int id, @RequestBody BookBorrowRequestDTO bookBorrowRequest,
+    private ResponseEntity<?> updateBookBorrow(@PathVariable int id, @RequestBody BookBorrowRequestDTO bookBorrowRequest,
             @RequestHeader("Authorization") String token) {
         try {
-            String role = jwtUtil.extractRole(token.replace("Bearer ", ""));
-
-            if ((!"ADMIN".equals(role)) && (!"LIBRARIAN".equals(role))) {
+            if (!authService.roleAuthAdminLibrarian(token)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(Map.of("error", "Access denied"));
             }
@@ -162,11 +154,9 @@ public class BookBorrowController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteBookBorrow(@PathVariable int id, @RequestHeader("Authorization") String token) {
+    private ResponseEntity<?> deleteBookBorrow(@PathVariable int id, @RequestHeader("Authorization") String token) {
         try {
-            String role = jwtUtil.extractRole(token.replace("Bearer ", ""));
-
-            if ((!"ADMIN".equals(role)) && (!"LIBRARIAN".equals(role))) {
+            if (!authService.roleAuthAdminLibrarian(token)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(Map.of("error", "Access denied"));
             }
