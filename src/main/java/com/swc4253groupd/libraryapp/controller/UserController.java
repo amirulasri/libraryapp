@@ -68,9 +68,6 @@ public class UserController {
     @GetMapping("/{id}")
     private ResponseEntity<?> getUserById(@PathVariable int id, @RequestHeader("Authorization") String token) {
         try {
-            // Validate token (uncomment if needed)
-            // jwtUtil.validateToken(token.replace("Bearer ", ""));
-
             String role = jwtUtil.extractRole(token.replace("Bearer ", ""));
 
             // Only allow admins to fetch user list
