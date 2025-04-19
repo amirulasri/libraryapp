@@ -39,15 +39,15 @@ public class AuthController {
             return ResponseEntity.badRequest().body(Map.of("error", "Invalid username or password"));
         }
 
-        String token = jwtUtil.generateToken(username, user.getRole());
+        String token = jwtUtil.generateToken(username, user.getRole(), user.getUserid());
         return ResponseEntity.ok(Map.of("token", token));
     }
 
     @GetMapping("/profile")
     private ResponseEntity<?> getUserProfile(@RequestHeader("Authorization") String token) {
         try {
-            String username = jwtUtil.extractUsername(token.replace("Bearer ", ""));
-            Optional<User> user = userRepository.findByUsername(username);
+            Integer userid = jwtUtil.extractUserId(token.replace("Bearer ", ""));
+            Optional<User> user = userRepository.findById(userid);
             if (user.isPresent()) {
                 return ResponseEntity.ok(user.get()); // Return the user object
             } else {

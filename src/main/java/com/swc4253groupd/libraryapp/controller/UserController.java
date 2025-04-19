@@ -142,7 +142,9 @@ public class UserController {
             if (existingUser.isPresent()) {
                 User user = existingUser.get();
                 user.setUsername(userRequest.getUsername());
-                user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+                if (userRequest.getPassword() != null && !userRequest.getPassword().isBlank()) {
+                    user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+                }
                 user.setRole(userRequest.getRole());
                 user.setPhoneno(userRequest.getPhoneno());
                 user.setAddress(userRequest.getAddress());

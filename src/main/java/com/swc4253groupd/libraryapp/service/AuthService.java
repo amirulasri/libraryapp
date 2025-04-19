@@ -19,4 +19,14 @@ public class AuthService {
             return true;
         }
     }
+    
+    public boolean roleAuthStudent(String token) {
+        String role = jwtUtil.extractRole(token.replace("Bearer ", ""));
+
+        if ((!"STUDENT".equals(role))) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 }

@@ -25,6 +25,7 @@ import com.swc4253groupd.libraryapp.notification.EmailService;
 import com.swc4253groupd.libraryapp.repository.BookBorrowRepository;
 import com.swc4253groupd.libraryapp.repository.BookRepository;
 import com.swc4253groupd.libraryapp.repository.UserRepository;
+import com.swc4253groupd.libraryapp.security.JwtUtil;
 import com.swc4253groupd.libraryapp.service.AuthService;
 
 @RestController
@@ -45,16 +46,23 @@ public class BookBorrowController {
     @Autowired
     private AuthService authService;
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
     @GetMapping
     private ResponseEntity<?> getBookBorrows(@RequestHeader("Authorization") String token) {
         try {
-            if (!authService.roleAuthAdminLibrarian(token)) {
+            if (authService.roleAuthAdminLibrarian(token)) {
+                List<BookBorrow> bookBorrows = (List<BookBorrow>) bookBorrowRepository.findAll();
+                return ResponseEntity.ok(bookBorrows);
+            } else if (authService.roleAuthStudent(token)) {
+                Integer userid = jwtUtil.extractUserId(token.replace("Bearer ", ""));
+                List<BookBorrow> bookBorrows = (List<BookBorrow>) bookBorrowRepository.findByUserUserid(userid);
+                return ResponseEntity.ok(bookBorrows);
+            } else {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(Map.of("error", "Access denied"));
             }
-
-            List<BookBorrow> bookBorrows = (List<BookBorrow>) bookBorrowRepository.findAll();
-            return ResponseEntity.ok(bookBorrows);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Invalid or expired token"));
@@ -103,8 +111,10 @@ public class BookBorrowController {
             bookBorrow.setUser(userOpt.get());
 
             BookBorrow savedBookBorrow = bookBorrowRepository.save(bookBorrow);
-            emailService.sendEmailAfterBook(userOpt.get().getEmail(), "Book borrow confirmation", bookOpt.get().getTitle(), bookOpt.get().getAuthor(), savedBookBorrow.getDateborrowed().toString(), savedBookBorrow.getDatereturn().toString());
-            
+            emailService.sendEmailAfterBook(userOpt.get().getEmail(), "Book borrow confirmation",
+                    bookOpt.get().getTitle(), bookOpt.get().getAuthor(), savedBookBorrow.getDateborrowed().toString(),
+                    savedBookBorrow.getDatereturn().toString());
+
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(Map.of(
                             "id", savedBookBorrow.getBookborrowid(),
@@ -122,7 +132,8 @@ public class BookBorrowController {
     }
 
     @PutMapping("/{id}")
-    private ResponseEntity<?> updateBookBorrow(@PathVariable int id, @RequestBody BookBorrowRequestDTO bookBorrowRequest,
+    private ResponseEntity<?> updateBookBorrow(@PathVariable int id,
+            @RequestBody BookBorrowRequestDTO bookBorrowRequest,
             @RequestHeader("Authorization") String token) {
         try {
             if (!authService.roleAuthAdminLibrarian(token)) {
