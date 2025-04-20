@@ -148,15 +148,18 @@ public class EmailService {
     }
 
     @Scheduled(cron = "0 0 8 */3 * ?") // Runs every 3 days at 8 AM
+    // AIN BATRISYIA
     public void sendEmailLateBook() {
         LocalDate now = LocalDate.now();
 
+        // Loop all record and find who return late books
         List<BookBorrow> lateBorrows = bookBorrowRepository.findByDatereturnBeforeAndIsreturnFalse(now);
         for (BookBorrow borrow : lateBorrows) {
             long daysLate = ChronoUnit.DAYS.between(borrow.getDatereturn(), now);
-            int fineAmount = calculateFine(daysLate);
+            int fineAmount = calculateFine(daysLate); // DANIEL LUQMAN
 
-            if (fineAmount < 30 && borrow.getNotificationCount() < (30 / 0.5)) { // Stop emails if fine reaches 30
+            // SEND EMAIL IF fine amount still not reach RM 30 and 
+            if (fineAmount < 30) { // Stop emails if fine reaches 30
                 try {
                     sendLateReturnReminder(
                             borrow.getUser().getEmail(),
