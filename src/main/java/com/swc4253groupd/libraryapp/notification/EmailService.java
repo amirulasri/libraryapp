@@ -1,6 +1,6 @@
 package com.swc4253groupd.libraryapp.notification;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
@@ -149,7 +149,7 @@ public class EmailService {
 
     @Scheduled(cron = "0 0 8 */3 * ?") // Runs every 3 days at 8 AM
     public void sendEmailLateBook() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDate now = LocalDate.now();
 
         List<BookBorrow> lateBorrows = bookBorrowRepository.findByDatereturnBeforeAndIsreturnFalse(now);
         for (BookBorrow borrow : lateBorrows) {

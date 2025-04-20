@@ -1,6 +1,6 @@
 package com.swc4253groupd.libraryapp.controller;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +42,7 @@ public class LateBookReturnController {
                         .body(Map.of("error", "Access denied"));
             }
 
-            LocalDateTime now = LocalDateTime.now();
+            LocalDate now = LocalDate.now();
 
             List<BookBorrow> lateBorrows = bookBorrowRepository.findByDatereturnBeforeAndIsreturnFalse(now);
 
@@ -62,6 +62,7 @@ public class LateBookReturnController {
 
             return ResponseEntity.ok(resultWithFine);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Invalid or expired token"));
         }
@@ -75,7 +76,7 @@ public class LateBookReturnController {
                         .body(Map.of("error", "Access denied"));
             }
 
-            LocalDateTime now = LocalDateTime.now();
+            LocalDate now = LocalDate.now();
             List<BookBorrow> lateBorrows = bookBorrowRepository.findByDatereturnBeforeAndIsreturnFalse(now);
 
             for (BookBorrow borrow : lateBorrows) {

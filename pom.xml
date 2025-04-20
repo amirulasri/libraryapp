@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>com.swc4253groupd</groupId>
 	<artifactId>libraryapp</artifactId>
-	<version>1.0.2</version>
+	<version>1.0.3</version>
 	<name>libraryapp</name>
 	<description>High quality Library App by Group D</description>
 	<url />
