@@ -151,6 +151,7 @@ public class BookBorrowController {
                 bookBorrow.setDatereturn(bookBorrowRequest.getDatereturn());
                 bookBorrow.setBook(bookOpt.get());
                 bookBorrow.setUser(userOpt.get());
+                bookBorrow.setIsreturn(bookBorrowRequest.isIsreturn());
 
                 bookBorrowRepository.save(bookBorrow);
                 return ResponseEntity.ok(Map.of("message", "Borrowed book updated successfully"));

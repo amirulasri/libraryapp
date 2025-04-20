@@ -25,4 +25,8 @@ public class BookBorrowRequestDTO {
     @NotBlank
     @NonNull
     private LocalDateTime datereturn;
+    
+    @NotBlank
+    @NonNull
+    private boolean isreturn;
 }
