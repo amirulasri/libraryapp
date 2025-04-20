@@ -190,7 +190,7 @@
     <a href="#" id="logoutnav" onclick="logout()">Logout</a>
   </div>
 
-  <h1 class="page-title">EDIT AIN BATRISYIA BOOK</h1>
+  <h1 class="page-title" id="booktitleheader">EDIT bookname BOOK</h1>
 
   <div class="edit-user-form">
     <label for="username">Book Title</label>
@@ -228,6 +228,7 @@
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
+        document.getElementById("booktitleheader").value = "EDIT " + data.title + " BOOK";
         document.getElementById("title").value = data.title;
         document.getElementById("author").value = data.author;
         document.getElementById("year").value = data.yearpublished;

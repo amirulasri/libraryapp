@@ -192,7 +192,7 @@
     <a href="#" id="logoutnav" onclick="logout()">Logout</a>
   </div>
 
-  <h1 class="page-title">EDIT AIN BATRISYIA USER</h1>
+  <h1 class="page-title" id="usertitleheader">EDIT userfullname USER</h1>
 
   <div class="edit-user-form">
     <label for="username">Username</label>
@@ -243,6 +243,7 @@
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
+        document.getElementById("usertitleheader").value = "EDIT " + data.name + " BOOK";
         document.getElementById("username").value = data.username;
         document.getElementById("role").value = data.role;
         document.getElementById("phoneno").value = data.phoneno;

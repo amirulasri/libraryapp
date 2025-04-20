@@ -194,7 +194,7 @@
     <a href="#" id="logoutnav" onclick="logout()">Logout</a>
   </div>
 
-  <h1>EDIT AIN BATRISYIA<br>BORROWING BOOK</h1>
+  <h1 id="usertitleheader">EDIT userfullname BORROWING BOOK</h1>
 
   <form onsubmit="event.preventDefault();">
     <label for="bookTitleSelect">Book title</label>
@@ -286,6 +286,7 @@
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
+        document.getElementById("usertitleheader").value = data.user.name;
         document.getElementById("bookTitleSelect").value = data.book.bookid;
         document.getElementById("userSelect").value = data.user.userid;
         document.getElementById("bdate").value = data.dateborrowed;
