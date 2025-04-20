@@ -1,6 +1,6 @@
 package com.swc4253groupd.libraryapp.dto;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import io.micrometer.common.lang.NonNull;
 import jakarta.validation.constraints.NotBlank;
@@ -20,11 +20,11 @@ public class BookBorrowRequestDTO {
     
     @NotBlank
     @NonNull
-    private LocalDateTime dateborrowed;
+    private LocalDate dateborrowed;
 
     @NotBlank
     @NonNull
-    private LocalDateTime datereturn;
+    private LocalDate datereturn;
     
     @NotBlank
     @NonNull

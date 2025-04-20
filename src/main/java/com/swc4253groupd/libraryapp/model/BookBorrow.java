@@ -1,6 +1,6 @@
 package com.swc4253groupd.libraryapp.model;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,9 +20,9 @@ public class BookBorrow {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer bookborrowid;
 
-    private LocalDateTime dateborrowed;
+    private LocalDate dateborrowed;
 
-    private LocalDateTime datereturn;
+    private LocalDate datereturn;
 
     @Column(name = "isreturn", columnDefinition = "BIT DEFAULT 0")
     private Boolean isreturn = false;
