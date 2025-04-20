@@ -19,12 +19,28 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/**").permitAll()  // Public routes
-                .requestMatchers("/admin/**").hasAuthority("ADMIN")
-                .requestMatchers("/book/**").hasAnyAuthority("LIBRARIAN", "ADMIN")
-                .anyRequest().authenticated()
-            );
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/login.html",
+                                "/addborrowbook.html",
+                                "/addnewbook.html",
+                                "/addnewuser.html",
+                                "/bookborrowmanagement.html",
+                                "/bookmanagement.html",
+                                "/borrowbook.html",
+                                "/edituser.html",
+                                "/latereturn.html",
+                                "/student.html",
+                                "/userbook.html",
+                                "/usermanagement.html",
+                                "/script.js",
+                                "/b1.png",
+                                "/b2.png",
+                                "/b4.png",
+                                "/favicon.ico",
+                                "/api/**")
+                        .permitAll()
+                        .anyRequest().authenticated());
         return http.build();
     }
 

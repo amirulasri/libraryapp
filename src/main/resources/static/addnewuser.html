@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>New User</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      background-color: #fff;
+      margin: 0;
+      padding: 0;
+      background: url('b4.png') no-repeat center fixed;
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: bottom right;
+      padding-bottom: 50px;
+    }
+
+    /* Navbar styles */
+    .navbar {
+      background-image: linear-gradient(to bottom right, #ffbf9f, #583625, #ffbf9f);
+      padding: 15px 30px;
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1.1em;
+      padding: 0 20px;
+      border-right: 2px solid #ffffff88;
+    }
+
+    .navbar a:last-child {
+      border-right: none;
+    }
+
+    .navbar a:hover {
+      color: #dff0ff;
+      text-decoration: none;
+      /* <-- Remove underline on hover */
+    }
+
+    .page-title {
+      text-align: center;
+      font-size: 28px;
+      color: #ffd6b6;
+      text-shadow: 4px 4px #000000;
+      letter-spacing: 2px;
+    }
+
+    .edit-user-form {
+      max-width: 500px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .edit-user-form label {
+      margin-top: 15px;
+      font-weight: 500;
+      font-weight: bold;
+      color: #ffffff;
+      text-shadow: 1px 1px #000;
+    }
+
+    .edit-user-form input[type="text"],
+    .edit-user-form input[type="email"],
+    .edit-user-form input[type="password"],
+    .edit-user-form select {
+      width: 100%;
+      padding: 12px;
+      background-color: #fff0cb;
+      border: none;
+      font-size: 16px;
+      border-radius: 4px;
+      margin-top: 5px;
+    }
+
+
+    input[type="text"],
+    select {
+      width: 100%;
+      padding: 10px;
+      background-color: #fff0cb;
+      border: none;
+      font-size: 16px;
+    }
+
+
+    .form-buttons {
+      margin-top: 25px;
+      display: flex;
+      gap: 20px;
+    }
+
+    .btn-save {
+      flex: 1;
+      padding: 10px;
+      background-color: #c1d09d;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .btn-cancel {
+      flex: 1;
+      padding: 10px;
+      background-color: #f88383;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .action-links a {
+      text-decoration: none;
+      color: #000;
+      margin: 0 5px;
+    }
+
+    .action-links a:hover {
+      text-decoration: underline;
+      color: #6fa8dc;
+    }
+
+
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #ffdfc9;
+      min-width: 180px;
+      z-index: 1;
+      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+      border-radius: 4px;
+    }
+
+    .dropdown-content a {
+      color: #000;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      border-bottom: 1px solid #e0c6b5;
+    }
+
+    .dropdown-content a:last-child {
+      border-bottom: none;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    .dropdown:hover>a {
+      color: #dff0ff;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="navbar">
+    <a href="student.html" id="studentnav" style="display: none;">Student</a>
+
+    <div class="dropdown" id="managebooknav" style="display: none;">
+      <a href="#">Books</a>
+      <div class="dropdown-content">
+        <a href="bookmanagement.html">Manage Books</a>
+        <a href="addnewbook.html">Add New Book</a>
+      </div>
+    </div>
+
+    <div class="dropdown" id="manageborrowbooknav" style="display: none;">
+      <a href="#">Borrowed Books</a>
+      <div class="dropdown-content">
+        <a href="bookborrowmanagement.html">Manage Borrowed</a>
+        <a href="addborrowbook.html">Borrow Book</a>
+      </div>
+    </div>
+
+    <div class="dropdown" id="manageusernav" style="display: none;">
+      <a href="#">Users</a>
+      <div class="dropdown-content">
+        <a href="usermanagement.html">Manage Users</a>
+        <a href="addnewuser.html">Add New User</a>
+      </div>
+    </div>
+
+    <div class="dropdown" id="managelatereturnnav" style="display: none;">
+      <a href="#">Late Return Books</a>
+      <div class="dropdown-content">
+        <a href="latereturn.html">Manage Late Return Books</a>
+        <a href="#" id="emailLink" onclick="sendEmailToLateUsers()">Send email to late users</a>
+      </div>
+    </div>
+
+    <a href="#" id="logoutnav" onclick="logout()">Logout</a>
+  </div>
+
+  <h1 class="page-title">ADD NEW USER</h1>
+
+  <form onsubmit="event.preventDefault()" class="edit-user-form">
+    <label for="username">Username</label>
+    <input type="text" id="username" placeholder="Enter Username">
+
+    <label for="password">Password</label>
+    <input type="password" id="password" placeholder="Enter Password">
+
+    <label for="name">Name</label>
+    <input type="text" id="name" placeholder="Enter Name">
+
+    <label for="email">Email</label>
+    <input type="email" id="email" placeholder="Enter Email">
+
+    <label for="address">Address</label>
+    <input type="text" id="address" placeholder="Enter Address">
+
+    <label for="phoneno">Phone Number</label>
+    <input type="text" id="phoneno" placeholder="Enter Phone Number">
+
+    <label for="role">Select Role</label>
+    <select id="role" name="role">
+      <option value="" selected disabled>Choose Role</option>
+      <option value="ADMIN">Admin</option>
+      <option value="LIBRARIAN">Librarian</option>
+      <option value="STUDENT">Student</option>
+    </select>
+
+    <div class="form-buttons">
+      <button type="submit" class="btn-save" onclick="addUser()">Save</button>
+      <button type="button" class="btn-cancel" onclick="window.location = 'usermanagement.html'">Cancel</button>
+    </div>
+  </form>
+
+  <script src="script.js"></script>
+  <script>
+    const userurl = apiUrl + '/api/users';
+
+    async function addUser() {
+      const data = {
+        username: document.getElementById("username").value,
+        password: document.getElementById("password").value,
+        name: document.getElementById("name").value,
+        email: document.getElementById("email").value,
+        role: document.getElementById("role").value,
+        address: document.getElementById("address").value,
+        phoneno: document.getElementById("phoneno").value
+      }
+
+      fetch(userurl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${bearerToken}`
+        },
+        body: JSON.stringify(data)
+      })
+        .then(response => response.json())
+        .then(result => {
+          console.log("Success:", result);
+          window.location = "usermanagement.html"
+        })
+        .catch(error => {
+          console.error("Error:", error);
+          alert("Error when updating data");
+        });
+    }
+  </script>
+</body>
+
+</html>

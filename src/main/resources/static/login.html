@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Login Page</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: url('b1.png') no-repeat center fixed;
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: bottom right;
+    }
+
+    .login-container {
+      max-width: 600px;
+      margin: 60px auto;
+      padding: 40px;
+      border: 2px solid #000;
+      background-color: white;
+      box-shadow: 5px 5px 0 #999;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2em;
+      color: #6fa8dc;
+      text-shadow: 1px 1px #999;
+    }
+
+    .form-group {
+      margin-bottom: 30px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 2px solid #000;
+    }
+
+    .roles {
+      display: flex;
+      gap: 30px;
+      /* Space between Admin and Student */
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 10px 0 10px 10px;
+      /* Top, Right, Bottom, Left padding */
+    }
+
+
+    .roles label {
+      font-weight: normal;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      /* Space between radio and label */
+      padding: 5px;
+    }
+
+    .login-button {
+      text-align: center;
+    }
+
+    .login-button button {
+      font-size: 16px;
+      padding: 10px 30px;
+      border: 2px solid #000;
+      cursor: pointer;
+      background-color: #fff;
+    }
+
+    .login-button button:hover {
+      background-color: #f0f0f0;
+    }
+
+    .banner-style {
+      text-align: center;
+      font-size: 36px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      color: #ffb784;
+      text-shadow: 4px 4px #000000;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="cloud-frame">
+    <div class="banner-style">LOGIN PAGE</div>
+
+    <div class="login-container">
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username">
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password">
+        </div>
+
+        <div class="login-button">
+          <button type="submit">Login</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</body>
+
+<script>
+  const apiUrl = 'https://libraryappswc4253.amirulasri.com';
+
+  document.getElementById('loginForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    const loginData = {
+      username: username,
+      password: password
+    };
+
+    try {
+      const response = await fetch(apiUrl + "/api/auth/login", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(loginData)
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        try {
+          const profileurl = apiUrl + "/api/auth/profile";
+          const response = await fetch(profileurl, {
+            headers: {
+              'Authorization': `Bearer ${result.token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          if (!response.ok) {
+            localStorage.removeItem("usertoken");
+            alert("Failed to get user data, try to relogin again.");
+            window.location = "login.html";
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          localStorage.setItem("usertoken", result.token);
+          const data = await response.json();
+          if (data.role == "ADMIN" || data.role == "LIBRARIAN") {
+            window.location = "bookmanagement.html";
+          } else {
+            window.location = "student.html";
+          }
+
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      } else {
+        alert("Login failed: " + result.error);
+      }
+
+    } catch (error) {
+      console.error('Error during login:', error);
+      alert("An error occurred. Please try again.");
+    }
+  });
+</script>
+
+</html>

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Late Return Management Page</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      background-color: #fff;
+      margin: 0;
+      padding: 0;
+      background: url('b2.png') no-repeat center fixed;
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: bottom right;
+    }
+
+    /* Navbar styles */
+    .navbar {
+      background-image: linear-gradient(to bottom right, #ffbf9f, #583625, #ffbf9f);
+      padding: 15px 30px;
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1.1em;
+      padding: 0 20px;
+      border-right: 2px solid #ffffff88;
+    }
+
+    .navbar a:last-child {
+      border-right: none;
+    }
+
+    .navbar a:hover {
+      color: #dff0ff;
+      text-decoration: none;
+      /* <-- Remove underline on hover */
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2em;
+      color: #fff;
+      text-shadow: 3px 3px #b86428;
+      margin: 30px 0 10px 0;
+    }
+
+    table {
+      width: 80%;
+      margin: 0 auto 50px auto;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      border: 2px solid #000;
+      padding: 15px;
+      text-align: center;
+    }
+
+    th {
+      background-image: linear-gradient(to bottom, #fcc38a, #785645, #fcc38a);
+      color: white;
+      font-size: 1.2em;
+    }
+
+    td {
+      background-color: #fff;
+    }
+
+    .action-links a {
+      text-decoration: none;
+      color: #000;
+      margin: 0 5px;
+    }
+
+    .action-links a:hover {
+      text-decoration: underline;
+      color: #6fa8dc;
+    }
+
+
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #ffdfc9;
+      min-width: 180px;
+      z-index: 1;
+      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+      border-radius: 4px;
+    }
+
+    .dropdown-content a {
+      color: #000;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      border-bottom: 1px solid #e0c6b5;
+    }
+
+    .dropdown-content a:last-child {
+      border-bottom: none;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    .dropdown:hover>a {
+      color: #dff0ff;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Navigation Bar -->
+  <div class="navbar">
+    <a href="student.html" id="studentnav" style="display: none;">Student</a>
+
+    <div class="dropdown" id="managebooknav" style="display: none;">
+      <a href="#">Books</a>
+      <div class="dropdown-content">
+        <a href="bookmanagement.html">Manage Books</a>
+        <a href="addnewbook.html">Add New Book</a>
+      </div>
+    </div>
+
+    <div class="dropdown" id="manageborrowbooknav" style="display: none;">
+      <a href="#">Borrowed Books</a>
+      <div class="dropdown-content">
+        <a href="bookborrowmanagement.html">Manage Borrowed</a>
+        <a href="addborrowbook.html">Borrow Book</a>
+      </div>
+    </div>
+
+    <div class="dropdown" id="manageusernav" style="display: none;">
+      <a href="#">Users</a>
+      <div class="dropdown-content">
+        <a href="usermanagement.html">Manage Users</a>
+        <a href="addnewuser.html">Add New User</a>
+      </div>
+    </div>
+
+    <div class="dropdown" id="managelatereturnnav" style="display: none;">
+      <a href="#">Late Return Books</a>
+      <div class="dropdown-content">
+        <a href="latereturn.html">Manage Late Return Books</a>
+        <a href="#" id="emailLink" onclick="sendEmailToLateUsers()">Send email to late users</a>
+      </div>
+    </div>
+
+    <a href="#" id="logoutnav" onclick="logout()">Logout</a>
+  </div>
+
+  <h1>Late Return Management Page</h1>
+
+  <table>
+    <tr>
+      <th>Book Borrow ID</th>
+      <th>Borrow range (day)</th>
+      <th>Fine (RM)</th>
+      <th>Book</th>
+      <th>User</th>
+      <th>Action</th>
+    </tr>
+    <tbody id="tablebody"></tbody>
+
+  </table>
+
+  <script src="script.js"></script>
+  <script>
+    const latereturnurl = apiUrl + "/api/bookborrows/latereturn";
+    const tableBody = document.getElementById('tablebody');
+
+    async function fetchDataAndRenderTable() {
+      try {
+        const response = await fetch(latereturnurl, {
+          headers: {
+            'Authorization': `Bearer ${bearerToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        renderTable(data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        tableBody.innerHTML = '<tr><td colspan="6">Failed to load data.</td></tr>';
+      }
+    }
+
+    function renderTable(data) {
+      tableBody.innerHTML = '';
+      data.forEach(eachdata => {
+        const row = tableBody.insertRow();
+
+        const IDCell = row.insertCell();
+        IDCell.textContent = eachdata.bookborrowid;
+
+        //CALCULATE DAY FROM DATE
+        const dateBorrowed = new Date(eachdata.dateborrowed);
+        const dateReturn = new Date(eachdata.datereturn);
+        const diffTime = Math.abs(dateReturn - dateBorrowed);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const RangeCell = row.insertCell();
+        RangeCell.textContent = diffDays;
+
+        const FineCell = row.insertCell();
+        FineCell.textContent = "RM " + eachdata.fine;
+
+        const BookCell = row.insertCell();
+        BookCell.textContent = eachdata.book.title;
+
+        const UserCell = row.insertCell();
+        UserCell.textContent = eachdata.user.name;
+
+        const actionCell = row.insertCell();
+        actionCell.classList.add('action-links');
+        actionCell.innerHTML = '<a href="borrowbook.html?id=' + eachdata.bookborrowid + '">Edit</a> | <a href="#" onclick="return confirmDelete(' + eachdata.bookborrowid + ')">Delete</a>';
+      });
+    }
+
+    fetchDataAndRenderTable();
+
+    function deleteData(id) {
+      fetch(bookborrowurl + "/" + id, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${bearerToken}`
+        },
+      })
+        .then(response => response.json())
+        .then(result => {
+          console.log("Success:", result);
+          window.location = "latereturn.html"
+        })
+        .catch(error => {
+          console.error("Error:", error);
+          alert("Error when updating data");
+        });
+    }
+
+    function confirmDelete(id) {
+      if (confirm('Are you sure want to delete this data?')) {
+        deleteData(id);
+      }
+      return false;
+    }
+  </script>
+</body>
+
+</html>

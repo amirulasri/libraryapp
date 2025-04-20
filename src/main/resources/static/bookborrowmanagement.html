@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Book Borrow Management</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      background: url('b2.png') no-repeat center fixed;
+      background-size: cover;
+      margin: 0;
+      padding: 0;
+      background-repeat: no-repeat;
+      background-position: bottom right;
+    }
+
+    /* Navbar styles */
+    .navbar {
+      background-image: linear-gradient(to bottom right, #ffbf9f, #583625, #ffbf9f);
+      padding: 15px 30px;
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1.1em;
+      padding: 0 20px;
+      border-right: 2px solid #ffffff88;
+    }
+
+    .navbar a:last-child {
+      border-right: none;
+    }
+
+    .navbar a:hover {
+      color: #dff0ff;
+      text-decoration: none;
+      /* <-- Remove underline on hover */
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2em;
+      color: #fff;
+      text-shadow: 3px 3px #b86428;
+      margin: 30px 0 10px 0;
+    }
+
+    table {
+      width: 80%;
+      margin: 0 auto 50px auto;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      border: 2px solid #000;
+      padding: 15px;
+      text-align: center;
+    }
+
+    th {
+      background-image: linear-gradient(to bottom, #fcc38a, #785645, #fcc38a);
+      color: white;
+      font-size: 1.2em;
+    }
+
+    td {
+      background-color: #fff;
+    }
+
+    .action-links a {
+      text-decoration: none;
+      color: #000;
+      margin: 0 5px;
+    }
+
+    .action-links a:hover {
+      text-decoration: underline;
+      color: #6fa8dc;
+    }
+
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #ffdfc9;
+      min-width: 180px;
+      z-index: 1;
+      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+      border-radius: 4px;
+    }
+
+    .dropdown-content a {
+      color: #000;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      border-bottom: 1px solid #e0c6b5;
+    }
+
+    .dropdown-content a:last-child {
+      border-bottom: none;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    .dropdown:hover>a {
+      color: #dff0ff;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="navbar">
+    <a href="student.html" id="studentnav" style="display: none;">Student</a>
+
+    <div class="dropdown" id="managebooknav" style="display: none;">
+      <a href="#">Books</a>
+      <div class="dropdown-content">
+        <a href="bookmanagement.html">Manage Books</a>
+        <a href="addnewbook.html">Add New Book</a>
+      </div>
+    </div>
+
+    <div class="dropdown" id="manageborrowbooknav" style="display: none;">
+      <a href="#">Borrowed Books</a>
+      <div class="dropdown-content">
+        <a href="bookborrowmanagement.html">Manage Borrowed</a>
+        <a href="addborrowbook.html">Borrow Book</a>
+      </div>
+    </div>
+
+    <div class="dropdown" id="manageusernav" style="display: none;">
+      <a href="#">Users</a>
+      <div class="dropdown-content">
+        <a href="usermanagement.html">Manage Users</a>
+        <a href="addnewuser.html">Add New User</a>
+      </div>
+    </div>
+
+    <div class="dropdown" id="managelatereturnnav" style="display: none;">
+      <a href="#">Late Return Books</a>
+      <div class="dropdown-content">
+        <a href="latereturn.html">Manage Late Return Books</a>
+        <a href="#" id="emailLink" onclick="sendEmailToLateUsers()">Send email to late users</a>
+      </div>
+    </div>
+
+    <a href="#" id="logoutnav" onclick="logout()">Logout</a>
+  </div>
+
+  <h1>Book Borrow Management Page</h1>
+
+  <table>
+    <tr>
+      <th>Book Borrow ID</th>
+      <th>Borrow Date</th>
+      <th>Return Date</th>
+      <th>Book</th>
+      <th>User</th>
+      <th>Is return</th>
+      <th>Action</th>
+    </tr>
+    <tbody id="tablebody"></tbody>
+
+  </table>
+
+  <script src="script.js"></script>
+  <script>
+    const bookborrowurl = apiUrl + "/api/bookborrows";
+    const tableBody = document.getElementById('tablebody');
+
+    async function fetchDataAndRenderTable() {
+      try {
+        const response = await fetch(bookborrowurl, {
+          headers: {
+            'Authorization': `Bearer ${bearerToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        renderTable(data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        tableBody.innerHTML = '<tr><td colspan="7">Failed to load data.</td></tr>';
+      }
+    }
+
+    function renderTable(data) {
+      tableBody.innerHTML = '';
+      data.forEach(eachdata => {
+        const row = tableBody.insertRow();
+
+        const idCell = row.insertCell();
+        idCell.textContent = eachdata.bookborrowid;
+
+        const BorrowDateCell = row.insertCell();
+        BorrowDateCell.textContent = eachdata.dateborrowed;
+
+        const ReturnDateCell = row.insertCell();
+        ReturnDateCell.textContent = eachdata.datereturn;
+
+        const titleCell = row.insertCell();
+        titleCell.textContent = eachdata.book.title;
+
+        const nameCell = row.insertCell();
+        nameCell.textContent = eachdata.user.name;
+
+        const IsReturnCell = row.insertCell();
+        IsReturnCell.textContent = eachdata.isreturn;
+
+        const actionCell = row.insertCell();
+        actionCell.classList.add('action-links');
+        actionCell.innerHTML = '<a href="borrowbook.html?id=' + eachdata.bookborrowid + '">Edit</a> | <a href="#" onclick="return confirmDelete(' + eachdata.bookborrowid + ')">Delete</a>';
+      });
+    }
+
+    fetchDataAndRenderTable();
+
+    function deleteData(id) {
+      fetch(bookborrowurl + "/" + id, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${bearerToken}`
+        },
+      })
+        .then(response => response.json())
+        .then(result => {
+          console.log("Success:", result);
+          window.location = "bookborrowmanagement.html"
+        })
+        .catch(error => {
+          console.error("Error:", error);
+          alert("Error when updating data");
+        });
+    }
+
+    function confirmDelete(id) {
+      if (confirm('Are you sure want to delete this data?')) {
+        deleteData(id);
+      }
+      return false;
+    }
+  </script>
+
+</body>
+
+</html>

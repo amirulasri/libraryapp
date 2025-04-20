@@ -140,7 +140,7 @@ public class EmailService {
                 .formatted(bookTitle, author, datereturn, fine);
 
         helper.setTo(to);
-        helper.setSubject("⚠️ Library Late Return Notice");
+        helper.setSubject("Library Late Return Notice");
         helper.setText(htmlContent, true);
         helper.setFrom("amirulasrixserver@gmail.com");
 
