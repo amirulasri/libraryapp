@@ -68,6 +68,7 @@ public class LateBookReturnController {
         }
     }
 
+    //PART AIN BATRISYIA HERE - 1
     @PostMapping
     public ResponseEntity<?> sendEmailToAllLateUsers(@RequestHeader("Authorization") String token) {
         try {
@@ -102,8 +103,9 @@ public class LateBookReturnController {
         }
     }
 
+    // PART DANIEL LUQMAN HERE
     private int calculateFine(long daysLate) {
-        int fine = (int) (daysLate * 0.5);
+        int fine = (int) (daysLate * 1);
         return Math.min(fine, 30);
     }
 }
